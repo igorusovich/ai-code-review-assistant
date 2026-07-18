@@ -1,4 +1,6 @@
-export type BugRisk = 'High' | 'Medium' | 'Low'
+import type { Dispatch, SetStateAction } from 'react'
+
+export type BugRisk = 'High' | 'Medium' | 'Low' | 'Pending'
 
 export interface ReviewResult {
   bugRisk: BugRisk
@@ -45,6 +47,7 @@ export interface UseOpenAIOptions {
 
 export interface UseOpenAIReturn {
   review: string
+  setReview: Dispatch<SetStateAction<string>>
   loading: boolean
   error: ReviewError | null
   submit: () => Promise<void>
