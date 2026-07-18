@@ -15,15 +15,23 @@ interface ReviewOutputProps {
   }
   loading: boolean
   error: ReviewError | null
+  isDemo?: boolean
 }
 
-export function ReviewOutput({ review, parsed, loading, error }: ReviewOutputProps) {
+export function ReviewOutput({ review, parsed, loading, error, isDemo = false }: ReviewOutputProps) {
   const hasContent = review.trim().length > 0
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-surface-800/50">
       <div className="border-b border-surface-500 px-5 py-4">
-        <h2 className="text-lg font-semibold text-slate-100">Review Output</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-slate-100">Review Output</h2>
+          {isDemo && (
+            <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+              Demo review
+            </span>
+          )}
+        </div>
         <p className="text-sm text-slate-400">{loading ? 'Streaming review from GPT-4o-mini...' : 'Structured feedback and suggestions.'}</p>
       </div>
 
@@ -69,6 +77,7 @@ export function ReviewOutput({ review, parsed, loading, error }: ReviewOutputPro
               {parsed.bugRisk === 'High' && <AlertTriangle size={20} className="text-red-400" />}
               {parsed.bugRisk === 'Medium' && <AlertTriangle size={20} className="text-amber-400" />}
               {parsed.bugRisk === 'Low' && <CheckCircle size={20} className="text-emerald-400" />}
+              {parsed.bugRisk === 'Pending' && <Clock size={20} className="animate-pulse text-slate-400" />}
               <div className="flex flex-1 items-center justify-between">
                 <span className="text-sm font-medium text-slate-200">Bug Risk</span>
                 <BugRiskBadge risk={parsed.bugRisk} />
@@ -106,6 +115,14 @@ export function ReviewOutput({ review, parsed, loading, error }: ReviewOutputPro
 }
 
 function BugRiskBadge({ risk }: { risk: BugRisk }) {
+  if (risk === 'Pending') {
+    return (
+      <span className="animate-pulse rounded-full border border-slate-500/30 bg-slate-500/10 px-2.5 py-0.5 text-xs font-semibold text-slate-400">
+        Analyzing...
+      </span>
+    )
+  }
+
   const classes =
     risk === 'High'
       ? 'bg-red-500/10 text-red-400 border-red-500/30'
