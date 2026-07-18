@@ -163,7 +163,7 @@ export function useOpenAI({ apiKey, code, language, context, onChunk }: UseOpenA
     }
   }, [apiKey, code, language, context, onChunk])
 
-  return { review, loading, error, submit, abort }
+  return { review, setReview, loading, error, submit, abort }
 }
 
 function extractContent(parsed: unknown): string | null {
