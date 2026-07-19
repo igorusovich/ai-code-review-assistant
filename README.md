@@ -1,17 +1,19 @@
 # AI Code Review Assistant
 
-A production-ready, dark-themed web app for reviewing code with OpenAI's `gpt-4o-mini`. Paste your code, add optional context, provide your OpenAI API key, and receive a streamed, structured review.
+A production-ready, dark-themed web app for reviewing code with AI. Paste your code, add optional context, provide your API key, and receive a streamed, structured review. Supports **OpenAI** and **OpenRouter** (access to Claude, Llama, and many other models through one key).
 
 ## Features
 
 - **Two-column layout** — Code input on the left, review output on the right.
 - **Syntax highlighting** — Powered by `prism-react-renderer`.
-- **Streaming responses** — Watch the review appear in real-time via the OpenAI API.
+- **Streaming responses** — Watch the review appear in real-time.
+- **Multiple providers** — Use OpenAI directly, or OpenRouter for access to many models.
+- **Configurable model** — Defaults to `gpt-4o-mini` (OpenAI) or `openai/gpt-4o-mini` (OpenRouter); enter any model id your provider supports.
 - **Structured output** — Bug Risk, Summary, Style Issues, Performance, Security, and Suggested Fix.
 - **Shareable links** — Code, language, and context are encoded in the URL hash.
-- **API key persistence** — Stored locally in `localStorage`, never sent anywhere except OpenAI.
+- **API key persistence** — Stored locally in `localStorage`, never sent anywhere except the selected provider.
 - **Fully typed TypeScript** — No `any`.
-- **Zero backend** — Calls OpenAI directly from the browser.
+- **Zero backend** — Calls the provider API directly from the browser.
 
 ## Tech Stack
 
@@ -50,13 +52,17 @@ No environment variables are required — the app runs entirely in the browser.
 1. Paste code into the **Code** editor.
 2. Select the language from the dropdown.
 3. (Optional) Add context to guide the reviewer.
-4. Enter your OpenAI API key.
-5. Click **Review**.
-6. Click **Share** to copy a link that includes your code, language, and context.
+4. Pick a **Provider** (OpenAI or OpenRouter) and enter your API key.
+5. (Optional) Override the **Model** — see [OpenRouter models](https://openrouter.ai/models) for available ids.
+6. Click **Review**.
+7. Click **Share** to copy a link that includes your code, language, and context.
 
-## OpenAI API Key
+## API Keys
 
-Your API key is stored in the browser's `localStorage` under the key `openai_api_key`. It is sent only to OpenAI's API endpoints and never to any other server.
+Each provider has its own key slot in the browser's `localStorage` (`openai_api_key` / `openrouter_api_key`), so switching providers recalls the right key. Keys are sent only to the selected provider's API endpoints and never to any other server.
+
+- OpenAI key: <https://platform.openai.com/api-keys>
+- OpenRouter key: <https://openrouter.ai/keys>
 
 ## Project Structure
 

@@ -6,7 +6,7 @@ import { useOpenAI } from './hooks/useOpenAI.ts'
 import { parseReview } from './utils/parseReview.ts'
 import { copyShareUrl, readUrlHash, updateUrlHash } from './utils/encodeShare.ts'
 import { DEMO_CODE, DEMO_CONTEXT, DEMO_LANGUAGE, DEMO_REVIEW } from './demo/demoReview.ts'
-import type { Language } from './types/review.ts'
+import type { Language, Provider } from './types/review.ts'
 
 const DEFAULT_LANGUAGE: Language = 'TypeScript'
 const DEMO_CHUNK_SIZE = 24
@@ -16,7 +16,10 @@ function App() {
   const [code, setCode] = useState<string>('')
   const [language, setLanguage] = useState<Language>(DEFAULT_LANGUAGE)
   const [context, setContext] = useState<string>('')
-  const [apiKey, setApiKey] = useLocalStorage<string>('openai_api_key', '')
+  const [provider, setProvider] = useLocalStorage<Provider>('provider', 'openai')
+  const [openaiApiKey, setOpenaiApiKey] = useLocalStorage<string>('openai_api_key', '')
+  const [openrouterApiKey, setOpenrouterApiKey] = useLocalStorage<string>('openrouter_api_key', '')
+  const [model, setModel] = useLocalStorage<string>('model', '')
   const [shareCopied, setShareCopied] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
 
@@ -49,8 +52,13 @@ function App() {
     }
   }, [code, language, context])
 
+  const apiKey = provider === 'openai' ? openaiApiKey : openrouterApiKey
+  const setApiKey = provider === 'openai' ? setOpenaiApiKey : setOpenrouterApiKey
+
   const { review, setReview, loading, error, submit, abort } = useOpenAI({
+    provider,
     apiKey,
+    model,
     code,
     language,
     context,
@@ -127,8 +135,12 @@ function App() {
             setLanguage={setLanguage}
             context={context}
             setContext={setContext}
+            provider={provider}
+            setProvider={setProvider}
             apiKey={apiKey}
             setApiKey={setApiKey}
+            model={model}
+            setModel={setModel}
             onReview={handleReview}
             onShare={handleShare}
             onDemo={handleDemo}

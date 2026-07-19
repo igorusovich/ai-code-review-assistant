@@ -1,7 +1,7 @@
 import { Highlight, themes } from 'prism-react-renderer'
 import { Languages, MessageSquare, Share2, Sparkles, Square } from 'lucide-react'
 import { ApiKeyInput } from './ApiKeyInput.tsx'
-import type { Language } from '../types/review.ts'
+import type { Language, Provider } from '../types/review.ts'
 
 const LANGUAGES: Language[] = [
   'TypeScript',
@@ -36,8 +36,12 @@ interface CodeInputProps {
   setLanguage: (language: Language) => void
   context: string
   setContext: (context: string) => void
+  provider: Provider
+  setProvider: (provider: Provider) => void
   apiKey: string
   setApiKey: (key: string) => void
+  model: string
+  setModel: (model: string) => void
   onReview: () => void
   onShare: () => void
   onDemo: () => void
@@ -51,8 +55,12 @@ export function CodeInput({
   setLanguage,
   context,
   setContext,
+  provider,
+  setProvider,
   apiKey,
   setApiKey,
+  model,
+  setModel,
   onReview,
   onShare,
   onDemo,
@@ -68,7 +76,7 @@ export function CodeInput({
         </div>
         <div>
           <h1 className="text-xl font-bold text-slate-100">AI Code Review</h1>
-          <p className="text-sm text-slate-400">Paste code, add context, and review with GPT-4o-mini.</p>
+          <p className="text-sm text-slate-400">Paste code, add context, and get an AI review.</p>
         </div>
       </div>
 
@@ -143,7 +151,14 @@ export function CodeInput({
         </div>
       </div>
 
-      <ApiKeyInput value={apiKey} onChange={setApiKey} />
+      <ApiKeyInput
+        provider={provider}
+        onProviderChange={setProvider}
+        value={apiKey}
+        onChange={setApiKey}
+        model={model}
+        onModelChange={setModel}
+      />
 
       <div className="grid grid-cols-2 gap-3 pt-2">
         <button
