@@ -117,7 +117,15 @@ function formatInline(text: string): string {
   html = html.replace(/(\*|_)(.*?)\1/g, '<em>$2</em>')
   // Inline code `text`
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
-  // Links [text](url)
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+  // Links [text](url) — only http(s) URLs become anchors. Anything else
+  // (javascript:, data:, etc.) renders as plain text to prevent XSS via
+  // model- or user-supplied markdown.
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, linkText: string, rawUrl: string) => {
+    const url = rawUrl.trim()
+    if (/^https?:\/\//i.test(url)) {
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${linkText}</a>`
+    }
+    return linkText
+  })
   return html
 }

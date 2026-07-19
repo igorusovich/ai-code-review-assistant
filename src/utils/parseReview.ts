@@ -14,7 +14,7 @@ type SectionName = (typeof SECTION_HEADERS)[number]
 export function parseReview(raw: string): ReviewResult {
   const sections = extractSections(raw)
 
-  const bugRisk = parseBugRisk(sections['Bug Risk']?.content ?? '')
+  const bugRisk = parseBugRisk(raw)
   const bugRiskExplanation = cleanSectionContent(sections['Bug Risk']?.content ?? '')
     .replace(/\[?(High|Medium|Low)\]?/i, '')
     .trim()
@@ -87,13 +87,28 @@ function extractSections(raw: string): Record<string, Section> {
   return sections
 }
 
-function parseBugRisk(content: string): BugRisk {
-  const match = /\b(High|Medium|Low)\b/i.exec(content)
+// Returns 'Pending' until the model's verdict actually arrives — never
+// fabricate a "Low" badge while the Bug Risk section is still streaming
+// or the model went off-format.
+//
+// The prompt format puts the level on the header line itself
+// ("## Bug Risk: High"), so we must inspect the header line — the section
+// body alone would never contain it. We also check the first non-empty
+// body line in case the model puts the verdict there instead.
+function parseBugRisk(raw: string): BugRisk {
+  const headerMatch = /^##\s*Bug Risk\b(?!\s*Explanation)[^\n]*/im.exec(raw)
+  if (!headerMatch) return 'Pending'
+
+  const afterHeader = raw.slice(headerMatch.index + headerMatch[0].length)
+  const firstBodyLine = afterHeader.split('\n').find((l) => l.trim().length > 0) ?? ''
+  const haystack = `${headerMatch[0]}\n${firstBodyLine}`
+
+  const match = /\b(High|Medium|Low)\b/i.exec(haystack)
   const value = match?.[1]?.toLowerCase()
   if (value === 'high') return 'High'
   if (value === 'medium') return 'Medium'
   if (value === 'low') return 'Low'
-  return 'Low'
+  return 'Pending'
 }
 
 function parseList(content: string): string[] {

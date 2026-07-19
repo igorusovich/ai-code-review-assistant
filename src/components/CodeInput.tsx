@@ -1,7 +1,7 @@
 import { Highlight, themes } from 'prism-react-renderer'
-import { Languages, MessageSquare, Share2, Sparkles } from 'lucide-react'
+import { Languages, MessageSquare, Share2, Sparkles, Square } from 'lucide-react'
 import { ApiKeyInput } from './ApiKeyInput.tsx'
-import type { Language } from '../types/review.ts'
+import type { Language, Provider } from '../types/review.ts'
 
 const LANGUAGES: Language[] = [
   'TypeScript',
@@ -36,10 +36,15 @@ interface CodeInputProps {
   setLanguage: (language: Language) => void
   context: string
   setContext: (context: string) => void
+  provider: Provider
+  setProvider: (provider: Provider) => void
   apiKey: string
   setApiKey: (key: string) => void
+  model: string
+  setModel: (model: string) => void
   onReview: () => void
   onShare: () => void
+  onDemo: () => void
   loading: boolean
 }
 
@@ -50,10 +55,15 @@ export function CodeInput({
   setLanguage,
   context,
   setContext,
+  provider,
+  setProvider,
   apiKey,
   setApiKey,
+  model,
+  setModel,
   onReview,
   onShare,
+  onDemo,
   loading,
 }: CodeInputProps) {
   const prismLanguage = PRISM_LANGUAGE_MAP[language] ?? 'text'
@@ -66,7 +76,7 @@ export function CodeInput({
         </div>
         <div>
           <h1 className="text-xl font-bold text-slate-100">AI Code Review</h1>
-          <p className="text-sm text-slate-400">Paste code, add context, and review with GPT-4o-mini.</p>
+          <p className="text-sm text-slate-400">Paste code, add context, and get an AI review.</p>
         </div>
       </div>
 
@@ -141,7 +151,14 @@ export function CodeInput({
         </div>
       </div>
 
-      <ApiKeyInput value={apiKey} onChange={setApiKey} />
+      <ApiKeyInput
+        provider={provider}
+        onProviderChange={setProvider}
+        value={apiKey}
+        onChange={setApiKey}
+        model={model}
+        onModelChange={setModel}
+      />
 
       <div className="grid grid-cols-2 gap-3 pt-2">
         <button
@@ -155,13 +172,15 @@ export function CodeInput({
         <button
           type="button"
           onClick={onReview}
-          disabled={loading || !code.trim() || !apiKey.trim()}
-          className="flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!loading && (!code.trim() || !apiKey.trim())}
+          className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-50 ${
+            loading ? 'bg-red-500/80 hover:bg-red-500' : 'bg-accent hover:bg-accent-hover'
+          }`}
         >
           {loading ? (
             <>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Reviewing...
+              <Square size={16} />
+              Stop
             </>
           ) : (
             <>
@@ -169,6 +188,16 @@ export function CodeInput({
               Review
             </>
           )}
+        </button>
+      </div>
+
+      <div className="text-center">
+        <button
+          type="button"
+          onClick={onDemo}
+          className="text-xs text-slate-400 underline-offset-2 transition hover:text-accent hover:underline"
+        >
+          No API key? Try a demo →
         </button>
       </div>
     </div>

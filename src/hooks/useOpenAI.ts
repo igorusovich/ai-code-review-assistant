@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
+import { PROVIDERS } from '../types/review.ts'
 import type { Language, ReviewError, UseOpenAIOptions, UseOpenAIReturn } from '../types/review.ts'
-
-const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 
 function buildSystemPrompt(code: string, language: Language, context: string): string {
   return `You are an expert code reviewer. Review the provided code for bugs, style issues, performance problems, and security vulnerabilities.
@@ -54,7 +53,7 @@ async function readErrorBody(response: Response): Promise<string> {
   }
 }
 
-export function useOpenAI({ apiKey, code, language, context, onChunk }: UseOpenAIOptions): UseOpenAIReturn {
+export function useOpenAI({ provider, apiKey, model, code, language, context, onChunk }: UseOpenAIOptions): UseOpenAIReturn {
   const [review, setReview] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<ReviewError | null>(null)
@@ -68,8 +67,9 @@ export function useOpenAI({ apiKey, code, language, context, onChunk }: UseOpenA
   }, [])
 
   const submit = useCallback(async () => {
+    const config = PROVIDERS[provider]
     if (!apiKey.trim()) {
-      setError({ type: 'api', message: 'Please enter your OpenAI API key.' })
+      setError({ type: 'api', message: `Please enter your ${config.name} API key.` })
       return
     }
     if (!code.trim()) {
@@ -85,14 +85,21 @@ export function useOpenAI({ apiKey, code, language, context, onChunk }: UseOpenA
     abortControllerRef.current = controller
 
     try {
-      const response = await fetch(OPENAI_API_URL, {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      }
+      if (provider === 'openrouter') {
+        // Optional identification headers recommended by OpenRouter.
+        headers['HTTP-Referer'] = window.location.origin
+        headers['X-Title'] = 'AI Code Review Assistant'
+      }
+
+      const response = await fetch(config.url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
+        headers,
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: model.trim() || config.defaultModel,
           messages: [
             { role: 'system', content: buildSystemPrompt(code, language, context) },
           ],
@@ -161,9 +168,9 @@ export function useOpenAI({ apiKey, code, language, context, onChunk }: UseOpenA
       setLoading(false)
       abortControllerRef.current = null
     }
-  }, [apiKey, code, language, context, onChunk])
+  }, [provider, apiKey, model, code, language, context, onChunk])
 
-  return { review, loading, error, submit, abort }
+  return { review, setReview, loading, error, submit, abort }
 }
 
 function extractContent(parsed: unknown): string | null {
