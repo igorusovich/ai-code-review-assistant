@@ -149,7 +149,7 @@ function App() {
         </section>
 
         <section className="h-[40vh] lg:h-auto">
-          <ReviewOutput review={review} parsed={parsed} loading={loading} error={error} isDemo={isDemo} />
+          <ReviewOutput review={review} language={language} parsed={parsed} loading={loading} error={error} isDemo={isDemo} />
         </section>
       </main>
 

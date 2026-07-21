@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Highlight, themes } from 'prism-react-renderer'
 import { ChevronDown, ChevronUp, Copy, Check } from 'lucide-react'
 import { renderMarkdown } from '../utils/renderMarkdown.ts'
 
@@ -8,9 +9,10 @@ interface ReviewSectionProps {
   defaultOpen?: boolean
   badge?: React.ReactNode
   codeBlock?: boolean
+  language?: string
 }
 
-export function ReviewSection({ title, children, defaultOpen = true, badge, codeBlock = false }: ReviewSectionProps) {
+export function ReviewSection({ title, children, defaultOpen = true, badge, codeBlock = false, language = 'text' }: ReviewSectionProps) {
   const [open, setOpen] = useState(defaultOpen)
   const [copied, setCopied] = useState(false)
 
@@ -64,9 +66,24 @@ export function ReviewSection({ title, children, defaultOpen = true, badge, code
         <div className="border-t border-surface-500 px-4 py-4">
           {codeBlock ? (
             <div className="relative">
-              <pre className="overflow-x-auto rounded-lg border border-surface-500 bg-surface-900 p-4 font-mono text-sm leading-6 text-slate-200">
-                <code>{children}</code>
-              </pre>
+              <Highlight theme={themes.vsDark} code={children} language={language}>
+                {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                  <pre
+                    className={`${className} overflow-x-auto rounded-lg border border-surface-500 bg-surface-900 p-4 font-mono text-sm leading-6`}
+                    style={{ ...style, margin: 0, background: 'transparent' }}
+                  >
+                    <code>
+                      {tokens.map((line, i) => (
+                        <div key={i} {...getLineProps({ line })}>
+                          {line.map((token, key) => (
+                            <span key={key} {...getTokenProps({ token })} />
+                          ))}
+                        </div>
+                      ))}
+                    </code>
+                  </pre>
+                )}
+              </Highlight>
             </div>
           ) : (
             <div

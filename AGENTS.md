@@ -45,7 +45,7 @@ src/
 │   ├── ApiKeyInput.tsx      # Provider selector, password-style API key input with show/hide toggle, model input
 │   ├── CodeInput.tsx        # Left panel: language select, code editor, context, share/review buttons
 │   ├── ReviewOutput.tsx     # Right panel: bug-risk badge, sections, loading skeletons, error display
-│   └── ReviewSection.tsx    # Collapsible section; renders markdown or a code block
+│   └── ReviewSection.tsx    # Collapsible section; renders markdown or a Prism syntax-highlighted code block
 ├── hooks/
 │   ├── useLocalStorage.ts   # Generic localStorage-backed state hook
 │   └── useOpenAI.ts         # Streaming fetch to the selected provider, SSE parsing, abort support
@@ -54,6 +54,7 @@ src/
 └── utils/
     ├── encodeShare.ts       # URL-hash encode/decode for shareable links
     ├── parseReview.ts       # Parses the model's markdown sections into ReviewResult
+    ├── prismLanguage.ts     # Maps Language to prism-react-renderer language ids (shared by editor and Suggested Fix)
     └── renderMarkdown.ts    # Minimal markdown→HTML renderer (escapes HTML first)
 ```
 

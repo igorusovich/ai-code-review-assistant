@@ -1,9 +1,11 @@
 import { AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react'
 import { ReviewSection } from './ReviewSection.tsx'
-import type { BugRisk, ReviewError } from '../types/review.ts'
+import { PRISM_LANGUAGE_MAP } from '../utils/prismLanguage.ts'
+import type { BugRisk, Language, ReviewError } from '../types/review.ts'
 
 interface ReviewOutputProps {
   review: string
+  language: Language
   parsed: {
     bugRisk: BugRisk
     summary: string
@@ -18,8 +20,9 @@ interface ReviewOutputProps {
   isDemo?: boolean
 }
 
-export function ReviewOutput({ review, parsed, loading, error, isDemo = false }: ReviewOutputProps) {
+export function ReviewOutput({ review, language, parsed, loading, error, isDemo = false }: ReviewOutputProps) {
   const hasContent = review.trim().length > 0
+  const prismLanguage = PRISM_LANGUAGE_MAP[language] ?? 'text'
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-surface-800/50">
@@ -104,7 +107,7 @@ export function ReviewOutput({ review, parsed, loading, error, isDemo = false }:
               {parsed.security.length > 0 ? parsed.security.map((item) => `- ${item}`).join('\n') : 'No security issues detected.'}
             </ReviewSection>
 
-            <ReviewSection title="Suggested Fix" codeBlock defaultOpen={parsed.suggestedFix.length > 0}>
+            <ReviewSection title="Suggested Fix" codeBlock language={prismLanguage} defaultOpen={parsed.suggestedFix.length > 0}>
               {parsed.suggestedFix || 'No suggested fix provided.'}
             </ReviewSection>
           </div>

@@ -1,6 +1,7 @@
 import { Highlight, themes } from 'prism-react-renderer'
 import { Languages, MessageSquare, Share2, Sparkles, Square } from 'lucide-react'
 import { ApiKeyInput } from './ApiKeyInput.tsx'
+import { PRISM_LANGUAGE_MAP } from '../utils/prismLanguage.ts'
 import type { Language, Provider } from '../types/review.ts'
 
 const LANGUAGES: Language[] = [
@@ -15,19 +16,6 @@ const LANGUAGES: Language[] = [
   'HTML',
   'Other',
 ]
-
-const PRISM_LANGUAGE_MAP: Record<Language, string> = {
-  TypeScript: 'typescript',
-  JavaScript: 'javascript',
-  Python: 'python',
-  Go: 'go',
-  Rust: 'rust',
-  Java: 'java',
-  'C++': 'cpp',
-  CSS: 'css',
-  HTML: 'html',
-  Other: 'text',
-}
 
 interface CodeInputProps {
   code: string
